@@ -369,9 +369,20 @@ export const listenDockerEvents = async () => {
 
     dockerListenerStarting = true
 
+    let readline: ReturnType<typeof createInterface> | undefined = undefined
+    let stream: NodeJS.ReadableStream | undefined = undefined
+
+    const removeListeners = () => {
+        dockerListenerStarted = false
+        dockerListenerStarting = false
+
+        readline?.close()
+        stream?.removeAllListeners()
+    }
+
     try {
-        const stream = await dockerService.dockerEventStream()
-        const readline = createInterface({ input: stream })
+        stream = await dockerService.dockerEventStream()
+        readline = createInterface({ input: stream })
 
         // 2. 状态纠正：确保流成功建立后再标记为已启动
         dockerListenerStarted = true
@@ -388,15 +399,15 @@ export const listenDockerEvents = async () => {
         readline.on('error', (err) => {
             log.error(`Error reading Docker event stream: \n${err}`)
             void resolveDockerEvent('error', String(err))
+            removeListeners()
         })
 
         readline.on('close', () => {
-            dockerListenerStarted = false
             void resolveDockerEvent('close')
+            removeListeners()
         })
     } catch (err) {
-        dockerListenerStarted = false
-        dockerListenerStarting = false
+        removeListeners()
         log.error(`Error listening to Docker events: \n${err}`)
     }
 }
