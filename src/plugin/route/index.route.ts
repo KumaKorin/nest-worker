@@ -4,7 +4,7 @@ import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 const globalRoute = async (app: FastifyInstance) => {
-    app.all('*', async (_req, reply) => {
+    app.all('/', async (_req, reply) => {
         reply.status(200).send(
             structuredResponse(true, 200, 'Welcome to MIAOMC Nest Worker API', {
                 author: 'KumaKorin',

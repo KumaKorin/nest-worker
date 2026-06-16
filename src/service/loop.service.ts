@@ -14,11 +14,12 @@ export const StartupLoop = async () => {
 
 export const resolveLoopEvents = async (tick: number) => {
     try {
-        // 这里可以处理周期逻辑，可以只用 取模 来控制不同事件的频率
         if (tick % 5 === 0) {
-            if (!dockerListenerStarted && !dockerListenerStarting) void listenDockerEvents()
-
             systemInfo = getSystemResources()
+        }
+
+        if (tick % 30 === 0) {
+            if (!dockerListenerStarted && !dockerListenerStarting) void listenDockerEvents()
         }
 
         return tick
